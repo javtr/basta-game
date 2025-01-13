@@ -13,8 +13,8 @@ const Game = ({ letters, time, onEndGame }) => {
 
   useEffect(() => {
     // Inicializar los objetos de audio una sola vez
-    tickSound.current = new Audio(`/basta-game/public/sounds/tick.mp3`);
-    endSound.current = new Audio(`/basta-game/public/sounds/end.mp3`);
+    tickSound.current = new Audio(`/sounds/tick.mp3`);
+    endSound.current = new Audio(`/sounds/end.mp3`);
 
     // Opcional: Ajustar el volumen si es necesario
     tickSound.current.volume = 0.5;
