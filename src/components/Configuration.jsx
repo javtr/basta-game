@@ -1,5 +1,8 @@
 // src/components/Configuration.jsx
 import React, { useState } from 'react';
+import Header from './Header';
+import ThemeToggle from './ThemeToggle';
+
 
 const Configuration = ({ onStartGame }) => {
   const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -28,7 +31,16 @@ const Configuration = ({ onStartGame }) => {
   };
 
   return (
+    <>
+
+    <Header>
+    <ThemeToggle />
+    </Header>     
+
+
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300 p-4">
+      
+      
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg w-full max-w-3xl p-6 transition-colors duration-300">
         {/* Título de Configuración */}
         <h2 className="text-2xl font-semibold mb-6 text-center text-indigo-600 dark:text-indigo-400">
@@ -81,6 +93,8 @@ const Configuration = ({ onStartGame }) => {
         </button>
       </div>
     </div>
+</>
+
   );
 };
 

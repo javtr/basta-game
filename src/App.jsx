@@ -18,9 +18,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-      <Header>
+      {/* <Header>
         <ThemeToggle />
-      </Header>
+      </Header> */}
       {gameSettings ? (
         <Game
           letters={gameSettings.letters}

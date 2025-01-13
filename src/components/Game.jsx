@@ -1,5 +1,5 @@
 // src/components/Game.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion'; // Importar Framer Motion
 
 const Game = ({ letters, time, onEndGame }) => {
@@ -7,25 +7,57 @@ const Game = ({ letters, time, onEndGame }) => {
   const [activeLetters, setActiveLetters] = useState([...letters]);
   const [gameActive, setGameActive] = useState(false);
 
+  // Referencias a los objetos de audio
+  const tickSound = useRef(null);
+  const endSound = useRef(null);
+
+  useEffect(() => {
+    // Inicializar los objetos de audio una sola vez
+    tickSound.current = new Audio(`/basta-game/public/sounds/tick.mp3`);
+    endSound.current = new Audio(`/basta-game/public/sounds/end.mp3`);
+
+    // Opcional: Ajustar el volumen si es necesario
+    tickSound.current.volume = 0.5;
+    endSound.current.volume = 0.7;
+
+    // Precargar los sonidos
+    tickSound.current.load();
+    endSound.current.load();
+  }, []);
+
   useEffect(() => {
     let timerId;
+
     if (gameActive) {
       if (currentTime > 0) {
+        // Iniciar el temporizador y reproducir el sonido de tick cada segundo
         timerId = setInterval(() => {
-          setCurrentTime((prev) => prev - 1);
+          setCurrentTime((prev) => {
+            // Reproducir sonido de tick
+            tickSound.current.play().catch((error) => {
+              console.error('Error al reproducir tickSound:', error);
+            });
+            return prev - 1;
+          });
         }, 1000);
       } else {
+        // Reproducir sonido de fin
+        endSound.current.play().catch((error) => {
+          console.error('Error al reproducir endSound:', error);
+        });
+
         // Introducir un retraso de 1 segundo antes de mostrar la alerta
         const timeoutId = setTimeout(() => {
           alert('¡Tiempo terminado! Iniciando nueva ronda.');
           setCurrentTime(time);
-          // Opcional: Reiniciar las letras activas si es necesario
           setActiveLetters([...letters]);
+          setGameActive(true); // Opcional: detener el juego hasta reiniciar
         }, 1000); // Retraso de 1 segundo
 
         return () => clearTimeout(timeoutId); // Limpiar el timeout si el efecto se reejecuta o el componente se desmonta
       }
     }
+
     return () => clearInterval(timerId);
   }, [gameActive, currentTime, time, letters]);
 
@@ -55,33 +87,26 @@ const Game = ({ letters, time, onEndGame }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300 p-4">
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg w-full max-w-3xl p-6 transition-colors duration-300">
-        {/* Título del Juego */}
-        <h2 className="text-3xl font-bold text-center text-indigo-600 dark:text-indigo-400 mb-6">
-          ¡Juego en Progreso!
-        </h2>
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300 p-2">
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg w-full max-w-3xl p-4 transition-colors duration-300">
 
         {/* Barra de Progreso */}
-        <div className="flex flex-col items-center justify-center mb-6 w-full">
+        <div className="flex flex-col items-center justify-center mb-2 w-full">
           {/* Barra de fondo */}
-          <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-6">
+          <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-10">
             {/* Barra de progreso */}
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progressPercentage}%` }}
               transition={{ duration: 1 }}
-              className={`${getProgressColor(progressPercentage)} h-6 rounded-full`}
+              className={`${getProgressColor(progressPercentage)} h-10 rounded-full`}
             ></motion.div>
           </div>
         </div>
 
         {/* Selección de Letras */}
-        <div className="mb-6">
-          <h3 className="text-xl font-medium text-center text-gray-700 dark:text-gray-300 mb-4">
-            Selecciona una letra:
-          </h3>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+        <div className="mb-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
             {activeLetters.map((letter) => (
               <motion.button
                 key={letter}
@@ -90,7 +115,7 @@ const Game = ({ letters, time, onEndGame }) => {
                 className={`${
                   !activeLetters.includes(letter)
                     ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
-                    : 'bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700'
+                    : 'bg-blue-500 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700'
                 } text-white font-semibold py-2 px-4 rounded-lg shadow transition transform hover:scale-105 focus:outline-none text-lg sm:text-xl`}
                 disabled={!activeLetters.includes(letter)}
                 aria-label={`Seleccionar letra ${letter}`}
@@ -98,6 +123,20 @@ const Game = ({ letters, time, onEndGame }) => {
                 {letter}
               </motion.button>
             ))}
+          </div>
+        </div>
+
+        {/* Barra de Progreso */}
+        <div className="flex flex-col items-center justify-center mb-2 w-full">
+          {/* Barra de fondo */}
+          <div className="w-full bg-gray-300 dark:bg-gray-700 rounded-full h-10">
+            {/* Barra de progreso */}
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercentage}%` }}
+              transition={{ duration: 1 }}
+              className={`${getProgressColor(progressPercentage)} h-10 rounded-full`}
+            ></motion.div>
           </div>
         </div>
 
@@ -109,7 +148,7 @@ const Game = ({ letters, time, onEndGame }) => {
             className="flex items-center bg-red-500 dark:bg-red-600 text-white font-semibold py-2 px-6 rounded-lg shadow hover:bg-red-600 dark:hover:bg-red-700 transition transform hover:scale-105 focus:outline-none"
             aria-label="Terminar Juego"
           >
-            Terminar Juego
+            Home
           </motion.button>
         </div>
       </div>

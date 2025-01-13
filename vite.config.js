@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/basta-game/',
+  base: '/basta-game/', // Asegúrate de incluir las barras '/'
 });
